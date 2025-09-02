@@ -1,0 +1,3045 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR-Code vCard Generator v22 - UTF-8 Ready</title>
+    <!-- QRious Library - BESSERE UTF-8 Unterstützung -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-color-1: #667eea;
+            --primary-color-2: #764ba2;
+            --accent-color: #667eea;
+            --text-color: #333;
+            --bg-color: #ffffff;
+            --section-bg: #f8f9fa;
+            --border-color: #e0e0e0;
+        }
+        
+        /* Dark theme */
+        body.theme-dark {
+            --primary-color-1: #1a1a2e;
+            --primary-color-2: #16213e;
+            --accent-color: #4a69bd;
+            --text-color: #f5f5f5;
+            --bg-color: #0f0f0f;
+            --section-bg: #1a1a1a;
+            --border-color: #333;
+        }
+        
+        /* Professional theme */
+        body.theme-professional {
+            --primary-color-1: #2c3e50;
+            --primary-color-2: #34495e;
+            --accent-color: #3498db;
+            --text-color: #2c3e50;
+            --bg-color: #ffffff;
+            --section-bg: #ecf0f1;
+            --border-color: #bdc3c7;
+        }
+        
+        /* Nacht theme */
+        body.theme-nacht {
+            --primary-color-1: #000000;
+            --primary-color-2: #1a1a1a;
+            --accent-color: #ffffff;
+            --text-color: #ffffff;
+            --bg-color: #000000;
+            --section-bg: #1a1a1a;
+            --border-color: #333333;
+        }
+        
+        body.theme-nacht .error-message,
+        body.theme-nacht .warning-box,
+        body.theme-nacht .btn-danger,
+        body.theme-nacht .social-item .remove-btn,
+        body.theme-nacht .profile-delete {
+            color: #ff0000 !important;
+            background-color: transparent !important;
+            border-color: #ff0000 !important;
+        }
+        
+        body.theme-nacht .btn-danger,
+        body.theme-nacht .social-item .remove-btn,
+        body.theme-nacht .profile-delete {
+            background: #ff0000 !important;
+            color: #000000 !important;
+        }
+        
+        body.theme-nacht .warning-box {
+            background: rgba(255, 0, 0, 0.1) !important;
+            border-color: #ff0000 !important;
+            color: #ff0000 !important;
+        }
+        
+        body.theme-nacht .profile-manager {
+            background: #1a1a1a !important;
+            border-color: #ffffff !important;
+        }
+        
+        body.theme-nacht .profile-manager h3 {
+            color: #ffffff !important;
+        }
+        
+        body.theme-nacht .profile-manager input {
+            background: #000000 !important;
+            color: #ffffff !important;
+            border-color: #333333 !important;
+        }
+        
+        body.theme-nacht .profile-manager #save-profile-btn {
+            background: #ffffff !important;
+            color: #000000 !important;
+        }
+        
+        body.theme-nacht .profile-item {
+            background: #000000 !important;
+            border: 1px solid #333333 !important;
+        }
+        
+        body.theme-nacht .profile-load {
+            background: #ffffff !important;
+            color: #000000 !important;
+        }
+        
+        body.theme-nacht .test-banner {
+            background: #1a1a1a !important;
+            border-color: #ffffff !important;
+            color: #ffffff !important;
+        }
+        
+        body.theme-nacht .test-banner button {
+            background: #ffffff !important;
+            color: #000000 !important;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color-1) 0%, var(--primary-color-2) 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--bg-color);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary-color-1) 0%, var(--primary-color-2) 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .theme-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .language-selector {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .theme-selector label,
+        .language-selector label {
+            color: white;
+            font-size: 0.9em;
+        }
+        
+        .theme-selector select,
+        .language-selector select {
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: none;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            cursor: pointer;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        .content {
+            display: flex;
+            gap: 30px;
+            padding: 30px;
+        }
+        
+        .left-panel {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .right-panel {
+            flex: 0 0 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .section {
+            background: var(--section-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: background 0.3s ease;
+        }
+        
+        .section h2 {
+            color: var(--accent-color);
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, var(--primary-color-1) 0%, var(--primary-color-2) 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+        }
+        
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        #qrcode {
+            background: white !important;
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 320px;
+        }
+        
+        #qrcode canvas {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        #logo-preview {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 4px;
+            border-radius: 8px;
+            object-fit: contain;
+            display: block;
+        }
+        
+        .social-list {
+            margin-top: 15px;
+        }
+        
+        .social-item {
+            display: flex;
+            align-items: center;
+            background: var(--bg-color);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            gap: 10px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .social-item .badge {
+            background: var(--accent-color);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        
+        .social-item .grow {
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .social-item a {
+            color: var(--accent-color);
+            text-decoration: none;
+            word-break: break-all;
+        }
+        
+        .social-item .remove-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .social-empty {
+            color: var(--text-color);
+            opacity: 0.6;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .preview-text {
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        #qr-title-prev {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #000000;
+        }
+        
+        #qr-subtitle-prev {
+            font-size: 0.9em;
+            color: #000000;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        #data-view {
+            background: var(--section-bg);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            color: var(--text-color);
+        }
+        
+        .meta-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        
+        .info-box {
+            background: var(--section-bg);
+            border: 1px solid var(--accent-color);
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: var(--text-color);
+        }
+        
+        .collapsible {
+            margin-top: 20px;
+        }
+        
+        .collapsible summary {
+            cursor: pointer;
+            padding: 10px;
+            background: var(--section-bg);
+            border-radius: 8px;
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+        
+        .collapsible[open] summary {
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .collapsible-content {
+            background: var(--section-bg);
+            padding: 15px;
+            border-radius: 0 0 8px 8px;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+        }
+        
+        .range-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        small {
+            display: block;
+            margin-top: 5px;
+            font-size: 0.85em;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        
+        .error-message {
+            color: red;
+            font-size: 0.85em;
+            display: none;
+        }
+        
+        .test-banner {
+            background: #ffeaa7;
+            border: 2px solid #fdcb6e;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .test-banner button {
+            background: #fdcb6e;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 5px;
+            font-weight: bold;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            color: #856404;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: none;
+            font-size: 0.9em;
+        }
+        
+        .warning-box.show {
+            display: block;
+        }
+        
+        .profile-manager {
+            background: #e8f4fd;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .profile-list {
+            margin-top: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .profile-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            background: white;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+        
+        .profile-item button {
+            margin-left: 5px;
+            padding: 4px 8px;
+            font-size: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .profile-load {
+            background: #667eea;
+            color: white;
+        }
+        
+        .profile-delete {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .data-size-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .size-bar {
+            flex: 1;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .size-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745 0%, #ffc107 50%, #dc3545 100%);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+        
+        .mode-selector label {
+            cursor: pointer;
+        }
+        
+        .mode-selector input[type="radio"] {
+            display: none;
+        }
+        
+        .mode-btn {
+            padding: 10px 25px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+        
+        .mode-selector input[type="radio"]:checked + .mode-btn {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .field-disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            background: #f0f0f0 !important;
+        }
+        
+        .section-disabled {
+            opacity: 0.6;
+            position: relative;
+        }
+        
+        .section-disabled::after {
+            content: "🔒 Nur im privaten Modus verfügbar";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255,255,255,0.95);
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: #666;
+            font-weight: 600;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        
+        /* ============================================ */
+        /* MOBILE OPTIMIERUNGEN FÜR iPHONE             */
+        /* ============================================ */
+        
+        /* Tablets und kleine Laptops */
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+                padding: 20px;
+                gap: 20px;
+            }
+            
+            .right-panel {
+                flex: 1;
+                max-width: 100%;
+                width: 100%;
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+        
+        /* Alle Smartphones */
+        @media (max-width: 480px) {
+            body {
+                padding: 0;
+                background: var(--bg-color);
+            }
+            
+            .container {
+                border-radius: 0;
+                max-width: 100%;
+                margin: 0;
+                box-shadow: none;
+            }
+            
+            .header {
+                padding: 20px 15px;
+                border-radius: 0;
+            }
+            
+            .header h1 {
+                font-size: 1.5em;
+            }
+            
+            .content {
+                padding: 15px;
+                gap: 15px;
+            }
+            
+            .section {
+                padding: 15px;
+                margin-bottom: 12px;
+                border-radius: 8px;
+            }
+            
+            .section h2 {
+                font-size: 1.1em;
+                margin-bottom: 12px;
+            }
+            
+            .form-group {
+                margin-bottom: 12px;
+            }
+            
+            .form-group label {
+                font-size: 0.9em;
+                margin-bottom: 4px;
+            }
+            
+            .form-group input, 
+            .form-group select, 
+            .form-group textarea {
+                padding: 10px;
+                font-size: 16px; /* Verhindert Zoom auf iOS */
+                border-radius: 6px;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+            
+            .btn-small {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+            
+            .mode-selector {
+                gap: 10px;
+                padding: 10px;
+            }
+            
+            .mode-btn {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
+            
+            .theme-selector {
+                position: static;
+                margin-bottom: 10px;
+                justify-content: center;
+            }
+            
+            .theme-selector select {
+                padding: 5px 8px;
+                font-size: 0.85em;
+            }
+            
+            .profile-manager {
+                padding: 12px;
+                margin-bottom: 15px;
+            }
+            
+            .test-banner {
+                padding: 10px;
+                margin-bottom: 15px;
+                font-size: 0.9em;
+            }
+            
+            .test-banner button {
+                padding: 6px 12px;
+                font-size: 0.85em;
+                margin: 2px;
+            }
+            
+            #qrcode {
+                padding: 8px;
+                margin-bottom: 15px;
+                min-height: 280px;
+            }
+            
+            .social-item {
+                padding: 8px;
+                margin-bottom: 8px;
+                font-size: 0.9em;
+            }
+            
+            .social-item .badge {
+                padding: 4px 8px;
+                font-size: 11px;
+            }
+            
+            .info-box {
+                padding: 8px;
+                font-size: 0.85em;
+                margin-top: 8px;
+            }
+            
+            .collapsible summary {
+                padding: 8px;
+                font-size: 0.9em;
+            }
+            
+            .collapsible-content {
+                padding: 10px;
+            }
+            
+            small {
+                font-size: 0.8em;
+            }
+            
+            .data-size-indicator {
+                margin-top: 8px;
+                font-size: 0.85em;
+            }
+            
+            .size-bar {
+                height: 16px;
+            }
+            
+            .meta-info {
+                margin-top: 8px;
+                font-size: 11px;
+            }
+            
+            #data-view {
+                padding: 10px;
+                margin-top: 10px;
+                font-size: 11px;
+                max-height: 150px;
+            }
+            
+            /* Button Gruppen auf Mobile */
+            .btn-group {
+                flex-direction: row;
+                justify-content: stretch;
+                gap: 8px;
+                margin-top: 15px;
+            }
+            
+            .btn-group .btn {
+                flex: 1;
+            }
+            
+            /* Form Row Anpassungen */
+            .form-row {
+                gap: 8px;
+            }
+            
+            .form-row .form-group {
+                margin-bottom: 0;
+            }
+            
+            /* Telefonnummer Layout */
+            .form-row .form-group[style*="flex: 0 0 100px"] {
+                flex: 0 0 90px !important;
+            }
+            
+            /* PLZ Field */
+            .form-row .form-group[style*="flex: 0 0 120px"] {
+                flex: 0 0 100px !important;
+            }
+        }
+        
+        /* iPhone SE, 12 mini, 13 mini */
+        @media (max-width: 375px) {
+            .header h1 {
+                font-size: 1.3em;
+            }
+            
+            .mode-btn {
+                padding: 7px 12px;
+                font-size: 0.85em;
+            }
+            
+            .section {
+                padding: 12px;
+            }
+            
+            .form-group input, 
+            .form-group select, 
+            .form-group textarea {
+                padding: 9px;
+            }
+        }
+        
+        /* iPhone 12, 13, 14, 15 Standard */
+        @media (max-width: 390px) {
+            .container {
+                min-height: 100vh;
+            }
+        }
+        
+        /* iPhone Plus/Max Modelle */
+        @media (max-width: 414px) {
+            /* Bereits durch 480px Media Query abgedeckt */
+        }
+        
+        /* Landscape Mode für Mobile */
+        @media (max-width: 812px) and (orientation: landscape) {
+            .header {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.3em;
+            }
+            
+            .content {
+                padding: 10px;
+            }
+            
+            .section {
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+            
+            #qrcode {
+                min-height: 200px;
+            }
+        }
+        
+        /* iOS spezifische Fixes */
+        @supports (-webkit-touch-callout: none) {
+            /* iOS Safari spezifisch */
+            input, select, textarea {
+                -webkit-appearance: none;
+                appearance: none;
+            }
+            
+            select {
+                background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+                background-repeat: no-repeat;
+                background-position: right 8px center;
+                background-size: 20px;
+                padding-right: 35px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="theme-selector">
+                <label>Design:</label>
+                <select id="theme-select">
+                    <option value="default">Standard</option>
+                    <option value="dark">Dunkel</option>
+                    <option value="professional">Professional</option>
+                    <option value="nacht">Nacht</option>
+                </select>
+            </div>
+            <div class="language-selector">
+                <select id="language-select">
+                    <option value="de">🇩🇪 Deutsch</option>
+                    <option value="en">🇬🇧 English</option>
+                </select>
+            </div>
+            <h1>📇 <span data-i18n="title">QR-Code vCard Generator</span></h1>
+            
+            <!-- Mode Selector -->
+            <div class="mode-selector">
+                <label>
+                    <input type="radio" name="mode" value="private" checked>
+                    <span class="mode-btn" data-i18n="modePrivate">🏠 Privat</span>
+                </label>
+                <label>
+                    <input type="radio" name="mode" value="business">
+                    <span class="mode-btn" data-i18n="modeBusiness">💼 Geschäftlich</span>
+                </label>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="left-panel">
+                <!-- Profile Manager -->
+                <div class="profile-manager">
+                    <h3 data-i18n="profileManageTitle">👥 Profile verwalten</h3>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <input type="text" id="profile-name" data-i18n="profileNamePlaceholder" placeholder="Profilname..." style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                        <button id="save-profile-btn" data-i18n="profileSave" style="background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">💾 Speichern</button>
+                    </div>
+                    <div id="profile-list" class="profile-list"></div>
+                </div>
+                
+                <!-- Test Banner -->
+                <div class="test-banner">
+                    <strong data-i18n="testBannerTitle">🧪 UTF-8 Test:</strong> <span data-i18n="testBannerText">Teste mit deutschen Umlauten!</span><br>
+                    <button id="fill-test-btn" data-i18n="testFillUmlauts">Mit Umläuten füllen</button>
+                    <button id="clear-all-btn" data-i18n="testClearAll">Alles löschen</button>
+                </div>
+                
+                <!-- Persönliche Daten -->
+                <div class="section">
+                    <h2 data-i18n="sectionPersonal">👤 Persönliche Daten</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-i18n="firstName">Vorname</label>
+                            <input type="text" id="c-first" data-i18n="firstName" placeholder="Max" maxlength="50">
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="lastName">Nachname</label>
+                            <input type="text" id="c-last" data-i18n="lastName" placeholder="Mustermann" maxlength="50">
+                        </div>
+                    </div>
+                    <div class="form-group" data-mode="private">
+                        <label data-i18n="nickname">Spitzname</label>
+                        <input type="text" id="c-nickname" data-i18n="nickname" placeholder="Maxi" maxlength="30">
+                    </div>
+                    <div class="form-group" data-mode="private">
+                        <label data-i18n="emailPrivate">E-Mail (Privat)</label>
+                        <input type="email" id="c-mail" data-i18n="emailPrivate" placeholder="max@example.com" maxlength="100">
+                        <small id="mail-error" class="error-message">Bitte gültige E-Mail eingeben</small>
+                    </div>
+                    <div class="form-group" data-mode="business">
+                        <label data-i18n="emailBusiness">E-Mail (Geschäftlich)</label>
+                        <input type="email" id="c-mail-work" data-i18n="emailBusiness" placeholder="max@firma.com" maxlength="100">
+                    </div>
+                    <div class="form-group" data-mode="private">
+                        <label data-i18n="birthday">Geburtsdatum</label>
+                        <input type="date" id="c-birthday">
+                    </div>
+                    <div class="form-group" data-mode="business">
+                        <label data-i18n="organization">Organisation</label>
+                        <input type="text" id="c-org" data-i18n="organization" placeholder="Firma GmbH">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" data-mode="business">
+                            <label data-i18n="title1">Titel/Position 1</label>
+                            <input type="text" id="c-title-1" data-i18n="title1" placeholder="Geschäftsführer">
+                        </div>
+                        <div class="form-group" data-mode="business">
+                            <label data-i18n="title2">Titel/Position 2</label>
+                            <input type="text" id="c-title-2" data-i18n="title2" placeholder="CTO">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Telefon -->
+                <div class="section">
+                    <h2 data-i18n="sectionPhone">📞 Telefonnummern</h2>
+                    <!-- Festnetz -->
+                    <div class="form-group">
+                        <label data-i18n="phoneLandline">Festnetz</label>
+                        <div class="form-row">
+                            <div class="form-group" style="flex: 0 0 100px; margin-bottom: 0;">
+                                <select id="c-tel-landline-cc">
+                                    <option value="+49">+49 🇩🇪</option>
+                                    <option value="+43">+43 🇦🇹</option>
+                                    <option value="+41">+41 🇨🇭</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                                <input type="tel" id="c-tel-landline" data-i18n="phoneLandline" placeholder="30 12345678">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Mobil -->
+                    <div class="form-group">
+                        <label data-i18n="phoneMobile">Mobil</label>
+                        <div class="form-row">
+                            <div class="form-group" style="flex: 0 0 100px; margin-bottom: 0;">
+                                <select id="c-tel-mobile-cc">
+                                    <option value="+49">+49 🇩🇪</option>
+                                    <option value="+43">+43 🇦🇹</option>
+                                    <option value="+41">+41 🇨🇭</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                                <input type="tel" id="c-tel-mobile" data-i18n="phoneMobile" placeholder="171 9876543">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Adresse -->
+                <div class="section">
+                    <h2 data-i18n="sectionAddress">📍 Adresse</h2>
+                    <div class="form-group">
+                        <label data-i18n="street">Straße & Hausnummer</label>
+                        <input type="text" id="c-street" data-i18n="street" placeholder="Musterstraße 123">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="streetExt">Adresszusatz</label>
+                        <input type="text" id="c-street-ext" data-i18n="streetExt" placeholder="Apartment 4B, Hinterhaus, 3. Stock links">
+                        <small data-i18n="streetExtHint">Wohnung, Stockwerk, Gebäudeteil etc.</small>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 0 0 120px;">
+                            <label data-i18n="postalCode">PLZ</label>
+                            <input type="text" id="c-postal" data-i18n="postalCode" placeholder="10115">
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="city">Stadt</label>
+                            <input type="text" id="c-city" data-i18n="city" placeholder="Berlin">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="country">Land</label>
+                        <input type="text" id="c-country" data-i18n="country" placeholder="Deutschland">
+                    </div>
+                </div>
+                
+                <!-- Website -->
+                <div class="section">
+                    <h2 data-i18n="sectionWebsite">🌐 Website</h2>
+                    <div class="form-group">
+                        <label data-i18n="websiteUrl">URL</label>
+                        <input type="url" id="c-url" data-i18n="websiteUrl" placeholder="https://www.example.com">
+                    </div>
+                </div>
+                
+                <!-- Social Media -->
+                <div class="section">
+                    <h2 data-i18n="sectionSocial">💬 Social Media</h2>
+                    <div class="form-group">
+                        <label data-i18n="socialPlatform">Plattform</label>
+                        <select id="social-type">
+                            <option value="bluesky">🟦 Bluesky</option>
+                            <option value="buddy">🤝 Buddy.net</option>
+                            <option value="discord">🟣 Discord</option>
+                            <option value="instagram">📸 Instagram</option>
+                            <option value="linkedin">💼 LinkedIn</option>
+                            <option value="mastodon">🐘 Mastodon</option>
+                            <option value="recon">🖤 Recon.com</option>
+                            <option value="reddit">👽 Reddit</option>
+                            <option value="romeo">💙 Romeo.com</option>
+                            <option value="signal">🔵 Signal</option>
+                            <option value="telegram">✈️ Telegram</option>
+                            <option value="threema">🟩 Threema</option>
+                            <option value="whatsapp">💬 WhatsApp</option>
+                            <option value="x">🦅 X (Twitter)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="socialInput">@handle, Username oder URL</label>
+                        <input type="text" id="social-input" data-i18n="socialInput" placeholder="@username oder https://...">
+                        <small data-i18n="socialMastodonHint">Für Mastodon: @user@server.social</small>
+                    </div>
+                    <button class="btn" id="add-social-btn" data-i18n="socialAdd">➕ Hinzufügen</button>
+                    
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label data-i18n="socialCompatibility">vCard Plattform-Kompatibilität:</label>
+                        <select id="vcard-platform">
+                            <option value="ios">iOS (iPhone/iPad)</option>
+                            <option value="android">Android</option>
+                            <option value="universal">Universal (beide)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="info-box">
+                        <strong data-i18n="socialTip">💡 Tipp:</strong> <span data-i18n="socialTipText">Die Apps werden automatisch geöffnet, wenn sie installiert sind. Ansonsten öffnet sich der Browser.</span>
+                    </div>
+                    
+                    <div id="social-list" class="social-list"></div>
+                </div>
+                
+                <!-- Notizen -->
+                <div class="section">
+                    <h2 data-i18n="sectionNotes">📝 Notizen</h2>
+                    <div class="form-group">
+                        <label data-i18n="notesLabel">Notizen (max. 200 Zeichen)</label>
+                        <textarea id="c-notes" data-i18n="notes" placeholder="Zusätzliche Informationen..." maxlength="200" rows="3"></textarea>
+                        <small><span id="notes-counter">0</span>/200 <span data-i18n="characters">Zeichen</span></small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="right-panel">
+                <!-- QR Code Preview -->
+                <div id="qrcode">
+                    <canvas id="qr-canvas"></canvas>
+                </div>
+                <div class="preview-text">
+                    <div id="qr-title-prev"></div>
+                    <div id="qr-subtitle-prev"></div>
+                </div>
+                
+                <!-- QR Customization -->
+                <div class="section" style="width: 100%;">
+                    <h2 data-i18n="sectionQRCustom">🎨 QR-Code Anpassung</h2>
+                    <div class="form-group">
+                        <label data-i18n="qrTitle">Titel über QR-Code</label>
+                        <input type="text" id="qr-title" data-i18n="qrTitle" placeholder="Scan mich!">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="qrSubtitle">Untertitel unter QR-Code</label>
+                        <input type="text" id="qr-subtitle" data-i18n="qrSubtitle" placeholder="Digitale Visitenkarte">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label data-i18n="qrLogo">Logo/Bild (wird zentriert)</label>
+                        <input type="file" id="logo-file" accept="image/*">
+                        <img id="logo-preview-img" class="hidden" style="max-width: 100px; margin-top: 10px;">
+                        <button id="logo-remove-btn" class="btn btn-danger btn-small hidden" style="margin-top: 10px;" data-i18n="qrLogoRemove">🗑️ Logo entfernen</button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="range-label">
+                            <label data-i18n="qrLogoSize">Logo Größe</label>
+                            <span id="label-logo-size">20</span>%
+                        </div>
+                        <input type="range" id="logo-size" min="10" max="30" value="20">
+                    </div>
+                </div>
+                
+                <!-- Erweiterte Einstellungen -->
+                <details class="collapsible" style="width: 100%;">
+                    <summary data-i18n="advancedSettings">⚙️ Erweiterte Einstellungen</summary>
+                    <div class="collapsible-content">
+                        <div class="form-group">
+                            <div class="range-label">
+                                <label data-i18n="qrSize">QR-Code Größe</label>
+                                <span id="label-qr-size">300</span>px
+                            </div>
+                            <input type="range" id="set-qr-size" min="200" max="500" value="300">
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="errorCorrection">Fehlerkorrektur</label>
+                            <select id="set-ec">
+                                <option value="L">L - 7% (klein)</option>
+                                <option value="M" selected>M - 15% (mittel)</option>
+                                <option value="Q">Q - 25% (hoch)</option>
+                                <option value="H">H - 30% (sehr hoch)</option>
+                            </select>
+                        </div>
+                    </div>
+                </details>
+                
+                <!-- Export -->
+                <div class="section" id="actions" style="width: 100%;">
+                    <h2 data-i18n="sectionExport">💾 Export</h2>
+                    
+                    <!-- Data Size Warning -->
+                    <div class="warning-box" id="size-warning" data-i18n="warningSizeHigh">
+                        ⚠️ <strong>Warnung:</strong> Die Datenmenge ist sehr hoch! Der QR-Code könnte schwer zu scannen sein. Reduzieren Sie einige Felder oder erhöhen Sie die Fehlerkorrektur.
+                    </div>
+                    
+                    <!-- Data Size Indicator -->
+                    <div class="data-size-indicator">
+                        <span data-i18n="dataSize">Datengröße:</span>
+                        <div class="size-bar">
+                            <div class="size-fill" id="size-fill"></div>
+                        </div>
+                        <span class="size-text" id="size-text">0 B</span>
+                    </div>
+                    
+                    <div class="btn-group" style="margin-top: 20px;">
+                        <button class="btn" id="export-png-btn" data-i18n="exportPNG">📥 PNG</button>
+                        <button class="btn btn-secondary" id="copy-vcard-btn" data-i18n="copyVCard">📋 vCard kopieren</button>
+                    </div>
+                    <div class="meta-info">
+                        <span id="meta-bytes">Bytes: 0</span>
+                        <span id="meta-hint">gut</span>
+                    </div>
+                </div>
+                
+                <!-- Data View -->
+                <div id="data-view" class="hidden" style="width: 100%;">
+                    <h3 style="margin-bottom: 10px;" data-i18n="vCardData">📄 vCard Daten:</h3>
+                    <div id="data"></div>
+                </div>
+                
+                <!-- Reset -->
+                <button class="btn btn-danger" id="reset-all-btn" style="width: 100%; margin-top: 20px;" data-i18n="resetAll">🗑️ Alles zurücksetzen</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        'use strict';
+        
+        // ============================================================================
+        // i18n TRANSLATIONS
+        // ============================================================================
+        
+        const translations = {
+            de: {
+                // Header
+                title: 'QR-Code vCard Generator',
+                modePrivate: '🏠 Privat',
+                modeBusiness: '💼 Geschäftlich',
+                
+                // Profile Manager
+                profileManageTitle: '👥 Profile verwalten',
+                profileNamePlaceholder: 'Profilname...',
+                profileSave: '💾 Speichern',
+                profileNoProfiles: 'Noch keine Profile gespeichert',
+                profileLoad: 'Laden',
+                profileDelete: '🗑️',
+                profileSaved: 'Profil "{name}" wurde gespeichert!',
+                profileLoaded: 'Profil "{name}" wurde geladen!',
+                profileDeleteConfirm: 'Möchten Sie das Profil "{name}" wirklich löschen?',
+                profileNameRequired: 'Bitte geben Sie einen Profilnamen ein!',
+                
+                // Test Banner
+                testBannerTitle: '🧪 UTF-8 Test:',
+                testBannerText: 'Teste mit deutschen Umlauten!',
+                testFillUmlauts: 'Mit Umläuten füllen',
+                testClearAll: 'Alles löschen',
+                
+                // Personal Data
+                sectionPersonal: '👤 Persönliche Daten',
+                firstName: 'Vorname',
+                lastName: 'Nachname',
+                nickname: 'Spitzname',
+                emailPrivate: 'E-Mail (Privat)',
+                emailBusiness: 'E-Mail (Geschäftlich)',
+                birthday: 'Geburtsdatum',
+                organization: 'Organisation',
+                title1: 'Titel/Position 1',
+                title2: 'Titel/Position 2',
+                
+                // Phone
+                sectionPhone: '📞 Telefonnummern',
+                phoneLandline: 'Festnetz',
+                phoneMobile: 'Mobil',
+                
+                // Address
+                sectionAddress: '📍 Adresse',
+                street: 'Straße & Hausnummer',
+                streetExt: 'Adresszusatz',
+                streetExtHint: 'Wohnung, Stockwerk, Gebäudeteil etc.',
+                postalCode: 'PLZ',
+                city: 'Stadt',
+                country: 'Land',
+                
+                // Website
+                sectionWebsite: '🌐 Website',
+                websiteUrl: 'URL',
+                
+                // Social Media
+                sectionSocial: '💬 Social Media',
+                socialPlatform: 'Plattform',
+                socialInput: '@handle, Username oder URL',
+                socialAdd: '➕ Hinzufügen',
+                socialCompatibility: 'vCard Plattform-Kompatibilität:',
+                socialTip: '💡 Tipp:',
+                socialTipText: 'Die Apps werden automatisch geöffnet, wenn sie installiert sind. Ansonsten öffnet sich der Browser.',
+                socialNoProfiles: 'Keine Social-Profile hinzugefügt',
+                socialMastodonHint: 'Für Mastodon: @user@server.social',
+                
+                // Notes
+                sectionNotes: '📝 Notizen',
+                notesLabel: 'Notizen (max. 200 Zeichen)',
+                notesPlaceholder: 'Zusätzliche Informationen...',
+                
+                // QR Customization
+                sectionQRCustom: '🎨 QR-Code Anpassung',
+                qrTitle: 'Titel über QR-Code',
+                qrSubtitle: 'Untertitel unter QR-Code',
+                qrLogo: 'Logo/Bild (wird zentriert)',
+                qrLogoSize: 'Logo Größe',
+                qrLogoRemove: '🗑️ Logo entfernen',
+                
+                // Advanced Settings
+                advancedSettings: '⚙️ Erweiterte Einstellungen',
+                qrSize: 'QR-Code Größe',
+                errorCorrection: 'Fehlerkorrektur',
+                
+                // Export
+                sectionExport: '💾 Export',
+                exportPNG: '📥 PNG',
+                copyVCard: '📋 vCard kopieren',
+                dataSize: 'Datengröße:',
+                vCardData: '📄 vCard Daten:',
+                
+                // Warnings & Messages
+                warningSizeHigh: '⚠️ Warnung: Die Datenmenge ist sehr hoch! Der QR-Code könnte schwer zu scannen sein. Reduzieren Sie einige Felder oder erhöhen Sie die Fehlerkorrektur.',
+                warningTooLarge: 'Warnung: Die Datenmenge ist zu groß für einen QR-Code! Bitte reduzieren Sie einige Felder.',
+                logoTooLarge: 'Logo zu groß! Max 2MB',
+                logoLoadError: 'Fehler beim Laden des Bildes',
+                qrCreateError: 'Fehler beim Erstellen des QR-Codes. Bitte prüfen Sie Ihre Eingaben.',
+                exportError: 'Fehler beim Exportieren des QR-Codes.',
+                saveError: 'Fehler beim Speichern der Datei.',
+                noQRCode: 'Kein QR-Code zum Exportieren vorhanden!',
+                canvasError: 'Fehler beim Erstellen des Export-Canvas.',
+                vcardCopied: 'vCard kopiert!',
+                
+                // Buttons
+                resetAll: '🗑️ Alles zurücksetzen',
+                resetConfirm: 'Wirklich alles zurücksetzen?',
+                
+                // Placeholders
+                placeholderFirstName: 'Max',
+                placeholderLastName: 'Mustermann',
+                placeholderNickname: 'Maxi',
+                placeholderEmailPrivate: 'max@example.com',
+                placeholderEmailBusiness: 'max@firma.com',
+                placeholderOrg: 'Firma GmbH',
+                placeholderTitle1: 'Geschäftsführer',
+                placeholderTitle2: 'CTO',
+                placeholderPhoneLandline: '30 12345678',
+                placeholderPhoneMobile: '171 9876543',
+                placeholderStreet: 'Musterstraße 123',
+                placeholderStreetExt: 'Apartment 4B, Hinterhaus, 3. Stock links',
+                placeholderPostal: '10115',
+                placeholderCity: 'Berlin',
+                placeholderCountry: 'Deutschland',
+                placeholderUrl: 'https://www.example.com',
+                placeholderSocialInput: '@username oder https://...',
+                placeholderQRTitle: 'Scan mich!',
+                placeholderQRSubtitle: 'Digitale Visitenkarte',
+                placeholderNotes: 'Zusätzliche Informationen...',
+                
+                // Error Messages for Social
+                errorSocialInput: 'Bitte @handle, Username oder URL eingeben',
+                errorMastodonFormat: 'Mastodon Format: @benutzername@server.social',
+                errorMastodonRequired: 'Mastodon benötigt das Format: @benutzername@server.social',
+                errorSignalPhone: 'Signal benötigt eine gültige Telefonnummer (z.B. +49171234567)',
+                errorWhatsAppPhone: 'WhatsApp benötigt eine gültige Telefonnummer (ohne + oder Leerzeichen)',
+                
+                // Meta
+                metaBytes: 'Bytes:',
+                metaGood: 'gut',
+                metaHigh: 'hoch',
+                metaVeryHigh: 'sehr hoch',
+                characters: 'Zeichen'
+            },
+            
+            en: {
+                // Header
+                title: 'QR-Code vCard Generator',
+                modePrivate: '🏠 Private',
+                modeBusiness: '💼 Business',
+                
+                // Profile Manager
+                profileManageTitle: '👥 Manage Profiles',
+                profileNamePlaceholder: 'Profile name...',
+                profileSave: '💾 Save',
+                profileNoProfiles: 'No profiles saved yet',
+                profileLoad: 'Load',
+                profileDelete: '🗑️',
+                profileSaved: 'Profile "{name}" has been saved!',
+                profileLoaded: 'Profile "{name}" has been loaded!',
+                profileDeleteConfirm: 'Do you really want to delete profile "{name}"?',
+                profileNameRequired: 'Please enter a profile name!',
+                
+                // Test Banner
+                testBannerTitle: '🧪 UTF-8 Test:',
+                testBannerText: 'Test with special characters!',
+                testFillUmlauts: 'Fill with umlauts',
+                testClearAll: 'Clear all',
+                
+                // Personal Data
+                sectionPersonal: '👤 Personal Data',
+                firstName: 'First Name',
+                lastName: 'Last Name',
+                nickname: 'Nickname',
+                emailPrivate: 'Email (Private)',
+                emailBusiness: 'Email (Business)',
+                birthday: 'Birthday',
+                organization: 'Organization',
+                title1: 'Title/Position 1',
+                title2: 'Title/Position 2',
+                
+                // Phone
+                sectionPhone: '📞 Phone Numbers',
+                phoneLandline: 'Landline',
+                phoneMobile: 'Mobile',
+                
+                // Address
+                sectionAddress: '📍 Address',
+                street: 'Street & Number',
+                streetExt: 'Address Extension',
+                streetExtHint: 'Apartment, floor, building part etc.',
+                postalCode: 'Postal Code',
+                city: 'City',
+                country: 'Country',
+                
+                // Website
+                sectionWebsite: '🌐 Website',
+                websiteUrl: 'URL',
+                
+                // Social Media
+                sectionSocial: '💬 Social Media',
+                socialPlatform: 'Platform',
+                socialInput: '@handle, username or URL',
+                socialAdd: '➕ Add',
+                socialCompatibility: 'vCard Platform Compatibility:',
+                socialTip: '💡 Tip:',
+                socialTipText: 'Apps will open automatically if installed. Otherwise the browser opens.',
+                socialNoProfiles: 'No social profiles added',
+                socialMastodonHint: 'For Mastodon: @user@server.social',
+                
+                // Notes
+                sectionNotes: '📝 Notes',
+                notesLabel: 'Notes (max. 200 characters)',
+                notesPlaceholder: 'Additional information...',
+                
+                // QR Customization
+                sectionQRCustom: '🎨 QR-Code Customization',
+                qrTitle: 'Title above QR-Code',
+                qrSubtitle: 'Subtitle below QR-Code',
+                qrLogo: 'Logo/Image (will be centered)',
+                qrLogoSize: 'Logo Size',
+                qrLogoRemove: '🗑️ Remove logo',
+                
+                // Advanced Settings
+                advancedSettings: '⚙️ Advanced Settings',
+                qrSize: 'QR-Code Size',
+                errorCorrection: 'Error Correction',
+                
+                // Export
+                sectionExport: '💾 Export',
+                exportPNG: '📥 PNG',
+                copyVCard: '📋 Copy vCard',
+                dataSize: 'Data size:',
+                vCardData: '📄 vCard Data:',
+                
+                // Warnings & Messages
+                warningSizeHigh: '⚠️ Warning: Data amount is very high! The QR-Code might be difficult to scan. Reduce some fields or increase error correction.',
+                warningTooLarge: 'Warning: Data amount is too large for a QR-Code! Please reduce some fields.',
+                logoTooLarge: 'Logo too large! Max 2MB',
+                logoLoadError: 'Error loading image',
+                qrCreateError: 'Error creating QR-Code. Please check your input.',
+                exportError: 'Error exporting QR-Code.',
+                saveError: 'Error saving file.',
+                noQRCode: 'No QR-Code available for export!',
+                canvasError: 'Error creating export canvas.',
+                vcardCopied: 'vCard copied!',
+                
+                // Buttons
+                resetAll: '🗑️ Reset everything',
+                resetConfirm: 'Really reset everything?',
+                
+                // Placeholders
+                placeholderFirstName: 'John',
+                placeholderLastName: 'Doe',
+                placeholderNickname: 'Johnny',
+                placeholderEmailPrivate: 'john@example.com',
+                placeholderEmailBusiness: 'john@company.com',
+                placeholderOrg: 'Company Inc.',
+                placeholderTitle1: 'CEO',
+                placeholderTitle2: 'CTO',
+                placeholderPhoneLandline: '30 12345678',
+                placeholderPhoneMobile: '171 9876543',
+                placeholderStreet: 'Main Street 123',
+                placeholderStreetExt: 'Apartment 4B, Back Building, 3rd Floor Left',
+                placeholderPostal: '10115',
+                placeholderCity: 'Berlin',
+                placeholderCountry: 'Germany',
+                placeholderUrl: 'https://www.example.com',
+                placeholderSocialInput: '@username or https://...',
+                placeholderQRTitle: 'Scan me!',
+                placeholderQRSubtitle: 'Digital Business Card',
+                placeholderNotes: 'Additional information...',
+                
+                // Error Messages for Social
+                errorSocialInput: 'Please enter @handle, username or URL',
+                errorMastodonFormat: 'Mastodon format: @username@server.social',
+                errorMastodonRequired: 'Mastodon requires format: @username@server.social',
+                errorSignalPhone: 'Signal requires a valid phone number (e.g. +49171234567)',
+                errorWhatsAppPhone: 'WhatsApp requires a valid phone number (without + or spaces)',
+                
+                // Meta
+                metaBytes: 'Bytes:',
+                metaGood: 'good',
+                metaHigh: 'high',
+                metaVeryHigh: 'very high',
+                characters: 'characters'
+            }
+        };
+        
+        // ============================================================================
+        // i18n SYSTEM
+        // ============================================================================
+        
+        const i18n = {
+            currentLang: 'de',
+            
+            init() {
+                // Load saved language preference
+                const savedLang = localStorage.getItem('vcardLanguage');
+                if (savedLang && translations[savedLang]) {
+                    this.currentLang = savedLang;
+                } else {
+                    // Detect browser language
+                    const browserLang = navigator.language.split('-')[0];
+                    if (translations[browserLang]) {
+                        this.currentLang = browserLang;
+                    }
+                }
+            },
+            
+            t(key, params = {}) {
+                let text = translations[this.currentLang][key] || translations['de'][key] || key;
+                
+                // Replace parameters
+                Object.keys(params).forEach(param => {
+                    text = text.replace(`{${param}}`, params[param]);
+                });
+                
+                return text;
+            },
+            
+            setLanguage(lang) {
+                if (!translations[lang]) return;
+                
+                this.currentLang = lang;
+                localStorage.setItem('vcardLanguage', lang);
+                this.updateUI();
+                
+                // Update placeholders and other dynamic content
+                this.updatePlaceholders();
+                this.updateDynamicContent();
+            },
+            
+            updateUI() {
+                // Update all elements with data-i18n attribute
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.dataset.i18n;
+                    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                        if (el.hasAttribute('placeholder')) {
+                            const placeholderKey = 'placeholder' + key.charAt(0).toUpperCase() + key.slice(1);
+                            el.placeholder = this.t(placeholderKey);
+                        }
+                    } else if (el.tagName === 'OPTION') {
+                        el.textContent = this.t(key);
+                    } else {
+                        // Check if element has only text or also icons
+                        const hasIcon = el.innerHTML.includes('🏠') || el.innerHTML.includes('💼');
+                        if (hasIcon && key.startsWith('mode')) {
+                            el.innerHTML = this.t(key);
+                        } else {
+                            el.textContent = this.t(key);
+                        }
+                    }
+                });
+            },
+            
+            updatePlaceholders() {
+                // Update specific placeholders
+                const placeholderMappings = {
+                    'c-first': 'placeholderFirstName',
+                    'c-last': 'placeholderLastName',
+                    'c-nickname': 'placeholderNickname',
+                    'c-mail': 'placeholderEmailPrivate',
+                    'c-mail-work': 'placeholderEmailBusiness',
+                    'c-org': 'placeholderOrg',
+                    'c-title-1': 'placeholderTitle1',
+                    'c-title-2': 'placeholderTitle2',
+                    'c-tel-landline': 'placeholderPhoneLandline',
+                    'c-tel-mobile': 'placeholderPhoneMobile',
+                    'c-street': 'placeholderStreet',
+                    'c-street-ext': 'placeholderStreetExt',
+                    'c-postal': 'placeholderPostal',
+                    'c-city': 'placeholderCity',
+                    'c-country': 'placeholderCountry',
+                    'c-url': 'placeholderUrl',
+                    'social-input': 'placeholderSocialInput',
+                    'qr-title': 'placeholderQRTitle',
+                    'qr-subtitle': 'placeholderQRSubtitle',
+                    'c-notes': 'placeholderNotes'
+                };
+                
+                Object.entries(placeholderMappings).forEach(([id, key]) => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.placeholder = this.t(key);
+                    }
+                });
+            },
+            
+            updateDynamicContent() {
+                // Update any dynamic content that needs translation
+                const langSelect = document.getElementById('language-select');
+                if (langSelect) {
+                    langSelect.value = this.currentLang;
+                }
+            }
+        };
+        
+        // ============================================================================
+        // CONSTANTS & CONFIGURATION
+        // ============================================================================
+        
+        const CONFIG = {
+            QR: {
+                MAX_BYTES: 2953,
+                WARNING_BYTES: 2000,
+                HIGH_BYTES: 1500,
+                DEFAULT_SIZE: 300,
+                MIN_SIZE: 200,
+                MAX_SIZE: 500,
+                DEFAULT_ERROR_CORRECTION: 'M'
+            },
+            LOGO: {
+                MAX_SIZE: 2 * 1024 * 1024, // 2MB
+                DEFAULT_PERCENTAGE: 20,
+                MIN_PERCENTAGE: 10,
+                MAX_PERCENTAGE: 30,
+                LOAD_TIMEOUT: 3000
+            },
+            DEBOUNCE: {
+                QR_GENERATION: 300,
+                SEARCH: 500
+            },
+            DEFAULTS: {
+                COUNTRY_CODE: '+49',
+                PLATFORM: 'ios',
+                THEME: 'default'
+            },
+            SOCIAL_LABELS: {
+                bluesky: '🟦 Bluesky',
+                buddy: '🤝 Buddy',
+                discord: '🟣 Discord',
+                instagram: '📸 Instagram',
+                linkedin: '💼 LinkedIn',
+                mastodon: '🐘 Mastodon',
+                recon: '🖤 Recon',
+                reddit: '👽 Reddit',
+                romeo: '💙 Romeo',
+                signal: '🔵 Signal',
+                telegram: '✈️ Telegram',
+                threema: '🟩 Threema',
+                whatsapp: '💬 WhatsApp',
+                x: '🦅 X'
+                // "twitter" entfernt - wird zu "x" gemappt
+            }
+        };
+        
+        // ============================================================================
+        // APPLICATION STATE
+        // ============================================================================
+        
+        class AppState {
+            constructor() {
+                this.socialPrivate = [];
+                this.socialBusiness = [];
+                this.logoDataUrl = '';
+                this.qrSize = CONFIG.QR.DEFAULT_SIZE;
+                this.profiles = {};
+                this.currentMode = 'private';
+                this.qrInstance = null;
+                this._loadFromStorage();
+            }
+            
+            getCurrentSocial() {
+                return this.currentMode === 'business' ? this.socialBusiness : this.socialPrivate;
+            }
+            
+            setCurrentSocial(value) {
+                if (this.currentMode === 'business') {
+                    this.socialBusiness = value;
+                } else {
+                    this.socialPrivate = value;
+                }
+            }
+            
+            _loadFromStorage() {
+                try {
+                    const saved = localStorage.getItem('vcardProfiles');
+                    if (saved) {
+                        this.profiles = JSON.parse(saved);
+                    }
+                } catch (error) {
+                    console.warn('Could not load profiles from localStorage:', error);
+                }
+            }
+            
+            saveProfiles() {
+                try {
+                    localStorage.setItem('vcardProfiles', JSON.stringify(this.profiles));
+                } catch (error) {
+                    console.warn('Could not save profiles to localStorage:', error);
+                }
+            }
+        }
+        
+        // ============================================================================
+        // UTILITY FUNCTIONS
+        // ============================================================================
+        
+        const Utils = {
+            debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            },
+            
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            },
+            
+            escapeAttr(text) {
+                return text.replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+            },
+            
+            escapeVCard(str) {
+                if (!str) return '';
+                return str
+                    .replace(/\\/g, '\\\\')
+                    .replace(/,/g, '\\,')
+                    .replace(/;/g, '\\;')
+                    .replace(/\n/g, '\\n')
+                    .replace(/\r/g, '');
+            },
+            
+            formatBytes(bytes) {
+                if (bytes < 1024) return bytes + ' B';
+                return (bytes / 1024).toFixed(1) + ' KB';
+            },
+            
+            getElement(id) {
+                const element = document.getElementById(id);
+                return element || null;
+            },
+            
+            getValue(id) {
+                const element = this.getElement(id);
+                return element ? element.value.trim() : '';
+            },
+            
+            setValue(id, value) {
+                const element = this.getElement(id);
+                if (element) element.value = value || '';
+            },
+            
+            showError(message) {
+                // Check if message is a translation key
+                const translatedMessage = i18n.t(message) !== message ? i18n.t(message) : message;
+                alert(translatedMessage);
+            },
+            
+            addClass(element, className) {
+                if (element && element.classList) element.classList.add(className);
+            },
+            
+            removeClass(element, className) {
+                if (element && element.classList) element.classList.remove(className);
+            }
+        };
+        
+        // ============================================================================
+        // VCARD GENERATOR MODULE
+        // ============================================================================
+        
+        const VCardGenerator = {
+            generate(state) {
+                const fields = this._collectFields(state.currentMode);
+                const lines = ['BEGIN:VCARD', 'VERSION:3.0'];
+                
+                this._addName(lines, fields);
+                this._addPersonalData(lines, fields, state.currentMode);
+                this._addPhones(lines, fields, state.currentMode);
+                this._addEmails(lines, fields, state.currentMode);
+                this._addAddress(lines, fields, state.currentMode);
+                this._addUrl(lines, fields);
+                this._addSocialMedia(lines, state);
+                this._addNotes(lines, fields);
+                
+                lines.push('END:VCARD');
+                return lines.join('\r\n');
+            },
+            
+            _collectFields(mode) {
+                const fields = {
+                    fn: Utils.getValue('c-first'),
+                    ln: Utils.getValue('c-last'),
+                    telLandline: Utils.getValue('c-tel-landline'),
+                    telLandlineCC: Utils.getValue('c-tel-landline-cc'),
+                    telMobile: Utils.getValue('c-tel-mobile'),
+                    telMobileCC: Utils.getValue('c-tel-mobile-cc'),
+                    street: Utils.getValue('c-street'),
+                    streetExt: Utils.getValue('c-street-ext'),
+                    postal: Utils.getValue('c-postal'),
+                    city: Utils.getValue('c-city'),
+                    country: Utils.getValue('c-country'),
+                    url: Utils.getValue('c-url'),
+                    notes: Utils.getValue('c-notes')
+                };
+                
+                // Nur mode-spezifische Felder lesen wenn der richtige Mode aktiv ist
+                if (mode === 'private') {
+                    fields.nickname = Utils.getValue('c-nickname');
+                    fields.mail = Utils.getValue('c-mail');
+                    fields.birthday = Utils.getValue('c-birthday');
+                } else {
+                    fields.mailWork = Utils.getValue('c-mail-work');
+                    fields.org = Utils.getValue('c-org');
+                    fields.title1 = Utils.getValue('c-title-1');
+                    fields.title2 = Utils.getValue('c-title-2');
+                }
+                
+                return fields;
+            },
+            
+            _addName(lines, fields) {
+                if (fields.ln || fields.fn) {
+                    lines.push(`N:${Utils.escapeVCard(fields.ln)};${Utils.escapeVCard(fields.fn)};;;`);
+                    lines.push(`FN:${Utils.escapeVCard(`${fields.fn} ${fields.ln}`.trim())}`);
+                }
+            },
+            
+            _addPersonalData(lines, fields, mode) {
+                if (mode === 'private') {
+                    if (fields.nickname) lines.push(`NICKNAME:${Utils.escapeVCard(fields.nickname)}`);
+                    if (fields.birthday) lines.push(`BDAY:${fields.birthday}`);
+                } else {
+                    if (fields.org) lines.push(`ORG:${Utils.escapeVCard(fields.org)}`);
+                    if (fields.title1) lines.push(`TITLE:${Utils.escapeVCard(fields.title1)}`);
+                    if (fields.title2) lines.push(`TITLE:${Utils.escapeVCard(fields.title2)}`);
+                }
+            },
+            
+            _addPhones(lines, fields, mode) {
+                const phoneType = mode === 'business' ? 'WORK' : 'HOME';
+                
+                if (fields.telLandline) {
+                    const number = fields.telLandlineCC + fields.telLandline.replace(/\D/g, '');
+                    lines.push(`TEL;TYPE=${phoneType},VOICE:${number}`);
+                }
+                
+                if (fields.telMobile) {
+                    const number = fields.telMobileCC + fields.telMobile.replace(/\D/g, '');
+                    lines.push(`TEL;TYPE=${phoneType},CELL:${number}`);
+                }
+            },
+            
+            _addEmails(lines, fields, mode) {
+                if (mode === 'private' && fields.mail) {
+                    lines.push(`EMAIL;TYPE=HOME:${Utils.escapeVCard(fields.mail)}`);
+                }
+                if (mode === 'business' && fields.mailWork) {
+                    lines.push(`EMAIL;TYPE=WORK:${Utils.escapeVCard(fields.mailWork)}`);
+                }
+            },
+            
+            _addAddress(lines, fields, mode) {
+                if (fields.street || fields.streetExt || fields.postal || fields.city || fields.country) {
+                    const addrType = mode === 'business' ? 'WORK' : 'HOME';
+                    lines.push(`ADR;TYPE=${addrType}:;${Utils.escapeVCard(fields.streetExt)};${Utils.escapeVCard(fields.street)};${Utils.escapeVCard(fields.city)};;${Utils.escapeVCard(fields.postal)};${Utils.escapeVCard(fields.country)}`);
+                }
+            },
+            
+            _addUrl(lines, fields) {
+                if (fields.url) lines.push(`URL:${fields.url}`);
+            },
+            
+            _addSocialMedia(lines, state) {
+                const platform = Utils.getValue('vcard-platform') || 'universal';
+                const currentSocial = state.getCurrentSocial();
+                
+                currentSocial.forEach(s => {
+                    const type = s.type === 'twitter' ? 'x' : s.type; // Map twitter to x
+                    if (platform === 'ios') {
+                        lines.push(`X-SOCIALPROFILE;type=${type};x-user=${s.username}:${s.url}`);
+                    } else if (platform === 'android') {
+                        lines.push(`URL;TYPE=${type.toUpperCase()}:${s.url}`);
+                    } else {
+                        lines.push(`URL;TYPE=SOCIAL:${s.url}`);
+                    }
+                });
+            },
+            
+            _addNotes(lines, fields) {
+                if (fields.notes) lines.push(`NOTE:${Utils.escapeVCard(fields.notes)}`);
+            }
+        };
+        
+        // ============================================================================
+        // QR CODE MANAGER
+        // ============================================================================
+        
+        const QRCodeManager = {
+            generate(state) {
+                const vcardData = VCardGenerator.generate(state);
+                const canvas = Utils.getElement('qr-canvas');
+                
+                if (!canvas) return;
+                
+                this._updateDataSize(vcardData);
+                
+                if (!vcardData || vcardData === 'BEGIN:VCARD\r\nVERSION:3.0\r\nEND:VCARD') {
+                    this._hideQR(canvas);
+                    return;
+                }
+                
+                this._showQR(canvas, vcardData, state);
+            },
+            
+            _hideQR(canvas) {
+                canvas.style.display = 'none';
+                const logo = Utils.getElement('logo-preview');
+                if (logo) logo.remove();
+            },
+            
+            _showQR(canvas, vcardData, state) {
+                canvas.style.display = 'block';
+                
+                try {
+                    const bytes = new TextEncoder().encode(vcardData).length;
+                    
+                    if (bytes > CONFIG.QR.MAX_BYTES) {
+                        Utils.showError('warningTooLarge');
+                        return;
+                    }
+                    
+                    this._updateQRInstance(state, vcardData);
+                    this._updateMetadata(bytes);
+                    this._updateDataView(vcardData);
+                    
+                    if (state.logoDataUrl) {
+                        this._addLogo(state);
+                    }
+                } catch (error) {
+                    console.error('Fehler bei QR-Code Generation:', error);
+                    Utils.showError('qrCreateError');
+                }
+            },
+            
+            _updateQRInstance(state, vcardData) {
+                const canvas = Utils.getElement('qr-canvas');
+                const errorCorrection = Utils.getValue('set-ec') || CONFIG.QR.DEFAULT_ERROR_CORRECTION;
+                
+                if (!state.qrInstance) {
+                    state.qrInstance = new QRious({
+                        element: canvas,
+                        size: state.qrSize,
+                        level: errorCorrection,
+                        background: 'white',
+                        foreground: 'black'
+                    });
+                } else {
+                    state.qrInstance.size = state.qrSize;
+                    state.qrInstance.level = errorCorrection;
+                }
+                
+                state.qrInstance.value = vcardData;
+            },
+            
+            _updateMetadata(bytes) {
+                const metaBytes = Utils.getElement('meta-bytes');
+                const metaHint = Utils.getElement('meta-hint');
+                
+                if (metaBytes) metaBytes.textContent = `${i18n.t('metaBytes')} ${bytes}`;
+                if (metaHint) {
+                    metaHint.textContent = 
+                        bytes > CONFIG.QR.WARNING_BYTES ? i18n.t('metaVeryHigh') : 
+                        bytes > CONFIG.QR.HIGH_BYTES ? i18n.t('metaHigh') : i18n.t('metaGood');
+                }
+            },
+            
+            _updateDataView(vcardData) {
+                const dataView = Utils.getElement('data-view');
+                const dataEl = Utils.getElement('data');
+                if (dataEl) {
+                    dataEl.textContent = vcardData;
+                    Utils.removeClass(dataView, 'hidden');
+                }
+            },
+            
+            _updateDataSize(vcardData) {
+                const bytes = new TextEncoder().encode(vcardData).length;
+                const percentage = Math.min((bytes / CONFIG.QR.MAX_BYTES) * 100, 100);
+                
+                const sizeFill = Utils.getElement('size-fill');
+                const sizeText = Utils.getElement('size-text');
+                const warning = Utils.getElement('size-warning');
+                
+                if (sizeFill) sizeFill.style.width = percentage + '%';
+                if (sizeText) {
+                    sizeText.textContent = Utils.formatBytes(bytes);
+                    sizeText.style.color = 
+                        bytes > CONFIG.QR.WARNING_BYTES ? '#dc3545' :
+                        bytes > CONFIG.QR.HIGH_BYTES ? '#ffc107' : '#28a745';
+                }
+                
+                if (warning) {
+                    if (bytes > CONFIG.QR.WARNING_BYTES) {
+                        Utils.addClass(warning, 'show');
+                    } else {
+                        Utils.removeClass(warning, 'show');
+                    }
+                }
+            },
+            
+            _addLogo(state) {
+                const existingLogo = Utils.getElement('logo-preview');
+                if (existingLogo) existingLogo.remove();
+                
+                if (!state.logoDataUrl) return;
+                
+                const logo = document.createElement('img');
+                logo.id = 'logo-preview';
+                logo.src = state.logoDataUrl;
+                
+                const logoSize = (Utils.getValue('logo-size') / 100) * state.qrSize;
+                logo.style.width = logoSize + 'px';
+                logo.style.height = logoSize + 'px';
+                
+                const qrcode = Utils.getElement('qrcode');
+                if (qrcode) qrcode.appendChild(logo);
+            }
+        };
+        
+        // ============================================================================
+        // SOCIAL MEDIA HANDLER
+        // ============================================================================
+        
+        const SocialMediaHandler = {
+            add(state) {
+                const type = Utils.getValue('social-type');
+                const input = Utils.getValue('social-input');
+                
+                if (!input) {
+                    Utils.showError('errorSocialInput');
+                    return;
+                }
+                
+                const url = this._generateUrl(type, input);
+                if (!url) return;
+                
+                const currentSocial = state.getCurrentSocial();
+                const filtered = currentSocial.filter(s => s.type !== type);
+                
+                filtered.push({
+                    type: type,
+                    input: input,
+                    url: url,
+                    username: input.replace(/^@/, '')
+                });
+                
+                state.setCurrentSocial(filtered);
+                Utils.setValue('social-input', '');
+                
+                this.render(state);
+                App.debouncedGenerate();
+            },
+            
+            remove(state, index) {
+                const currentSocial = state.getCurrentSocial();
+                currentSocial.splice(index, 1);
+                this.render(state);
+                App.debouncedGenerate();
+            },
+            
+            render(state) {
+                const list = Utils.getElement('social-list');
+                if (!list) return;
+                
+                const currentSocial = state.getCurrentSocial();
+                
+                if (!currentSocial.length) {
+                    list.innerHTML = `<p class="social-empty">${i18n.t('socialNoProfiles')}</p>`;
+                    return;
+                }
+                
+                list.innerHTML = currentSocial.map((s, i) => `
+                    <div class="social-item">
+                        <span class="badge">${CONFIG.SOCIAL_LABELS[s.type] || s.type}</span>
+                        <div class="grow">
+                            <a href="${s.url}" target="_blank">${s.url}</a>
+                        </div>
+                        <button class="remove-btn" data-index="${i}">🗑️</button>
+                    </div>
+                `).join('');
+            },
+            
+            _generateUrl(type, input) {
+                if (input.startsWith('http')) return input;
+                
+                const cleanInput = input.replace(/^@/, '');
+                const urlGenerators = {
+                    bluesky: () => `https://bsky.app/profile/${cleanInput}`,
+                    buddy: () => `https://www.buddy.net/${cleanInput}`,
+                    discord: () => /^\d{15,20}$/.test(cleanInput) ? 
+                        `https://discord.com/users/${cleanInput}` : 
+                        `https://discord.gg/${cleanInput}`,
+                    instagram: () => `https://instagram.com/${cleanInput}`,
+                    linkedin: () => `https://www.linkedin.com/in/${cleanInput}`,
+                    mastodon: () => this._handleMastodon(cleanInput),
+                    recon: () => `https://www.recon.com/${cleanInput}`,
+                    reddit: () => this._handleReddit(cleanInput),
+                    romeo: () => `https://www.romeo.com/${cleanInput}`,
+                    signal: () => this._handleSignal(cleanInput),
+                    telegram: () => `https://t.me/${cleanInput}`,
+                    threema: () => `https://threema.id/${cleanInput}`,
+                    whatsapp: () => this._handleWhatsApp(cleanInput),
+                    x: () => `https://x.com/${cleanInput}`,
+                    twitter: () => `https://x.com/${cleanInput}` // Map twitter to x
+                };
+                
+                const generator = urlGenerators[type];
+                return generator ? generator() : null;
+            },
+            
+            _handleMastodon(input) {
+                if (input.includes('@')) {
+                    const parts = input.split('@').filter(p => p);
+                    if (parts.length === 2 && parts[1].includes('.')) {
+                        return `https://${parts[1]}/@${parts[0]}`;
+                    }
+                    Utils.showError('errorMastodonFormat');
+                    return null;
+                }
+                Utils.showError('errorMastodonRequired');
+                return null;
+            },
+            
+            _handleReddit(input) {
+                if (input.startsWith('r/') || input.startsWith('u/')) {
+                    return `https://www.reddit.com/${input}`;
+                }
+                return `https://www.reddit.com/user/${input}`;
+            },
+            
+            _handleSignal(input) {
+                const phone = input.replace(/[^\d+]/g, '');
+                if (!phone || phone.length < 5) {
+                    Utils.showError('errorSignalPhone');
+                    return null;
+                }
+                return `https://signal.me/#p/${phone}`;
+            },
+            
+            _handleWhatsApp(input) {
+                const phone = input.replace(/[^\d]/g, '');
+                if (!phone || phone.length < 5) {
+                    Utils.showError('errorWhatsAppPhone');
+                    return null;
+                }
+                return `https://wa.me/${phone}`;
+            }
+        };
+        
+        // ============================================================================
+        // PROFILE MANAGER
+        // ============================================================================
+        
+        const ProfileManager = {
+            save(state) {
+                const profileName = Utils.getValue('profile-name');
+                if (!profileName) {
+                    Utils.showError('profileNameRequired');
+                    return;
+                }
+                
+                const profileData = {
+                    name: profileName,
+                    created: new Date().toISOString(),
+                    mode: state.currentMode,
+                    data: this._collectAllData(state)
+                };
+                
+                state.profiles[profileName] = profileData;
+                state.saveProfiles();
+                
+                Utils.setValue('profile-name', '');
+                this.render(state);
+                Utils.showError(i18n.t('profileSaved', {name: profileName}));
+            },
+            
+            load(state, profileName) {
+                const profile = state.profiles[profileName];
+                if (!profile || !profile.data) return;
+                
+                if (profile.mode) {
+                    const modeRadio = document.querySelector(`input[name="mode"][value="${profile.mode}"]`);
+                    if (modeRadio) {
+                        modeRadio.checked = true;
+                        ModeHandler.switch(state, profile.mode);
+                    }
+                }
+                
+                this._loadAllData(profile.data, state);
+                
+                SocialMediaHandler.render(state);
+                App.debouncedGenerate();
+                Utils.showError(i18n.t('profileLoaded', {name: profileName}));
+            },
+            
+            delete(state, profileName) {
+                if (!confirm(i18n.t('profileDeleteConfirm', {name: profileName}))) {
+                    return;
+                }
+                
+                delete state.profiles[profileName];
+                state.saveProfiles();
+                this.render(state);
+            },
+            
+            render(state) {
+                const list = Utils.getElement('profile-list');
+                if (!list) return;
+                
+                const profileNames = Object.keys(state.profiles);
+                
+                if (profileNames.length === 0) {
+                    list.innerHTML = `<p style="text-align: center; color: #666; margin-top: 10px;">${i18n.t('profileNoProfiles')}</p>`;
+                    return;
+                }
+                
+                list.innerHTML = profileNames.map(name => {
+                    const profile = state.profiles[name];
+                    const date = new Date(profile.created).toLocaleDateString(i18n.currentLang === 'en' ? 'en-US' : 'de-DE');
+                    const modeIcon = profile.mode === 'business' ? '💼' : '🏠';
+                    const escapedName = Utils.escapeHtml(name);
+                    const escapedNameAttr = Utils.escapeAttr(name);
+                    
+                    return `
+                        <div class="profile-item">
+                            <div>
+                                <strong>${modeIcon} ${escapedName}</strong>
+                                <small style="color: #666; margin-left: 10px;">${date}</small>
+                            </div>
+                            <div>
+                                <button class="profile-load" data-name="${escapedNameAttr}">${i18n.t('profileLoad')}</button>
+                                <button class="profile-delete" data-name="${escapedNameAttr}">${i18n.t('profileDelete')}</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            },
+            
+            _collectAllData(state) {
+                const fields = [
+                    'c-first', 'c-last', 'c-nickname', 'c-mail', 'c-mail-work',
+                    'c-birthday', 'c-org', 'c-title-1', 'c-title-2',
+                    'c-tel-landline', 'c-tel-landline-cc', 'c-tel-mobile', 'c-tel-mobile-cc',
+                    'c-street', 'c-street-ext', 'c-postal', 'c-city', 'c-country',
+                    'c-url', 'c-notes', 'qr-title', 'qr-subtitle'
+                ];
+                
+                const data = {};
+                fields.forEach(field => {
+                    data[field] = Utils.getValue(field);
+                });
+                
+                data.socialPrivate = [...state.socialPrivate];
+                data.socialBusiness = [...state.socialBusiness];
+                data.logoDataUrl = state.logoDataUrl;
+                
+                return data;
+            },
+            
+            _loadAllData(data, state) {
+                Object.keys(data).forEach(key => {
+                    if (key === 'socialPrivate' || key === 'socialBusiness' || key === 'logoDataUrl') {
+                        return; // Handle separately
+                    }
+                    Utils.setValue(key, data[key]);
+                });
+                
+                // Handle social media
+                if (data.social) {
+                    // Old format compatibility
+                    if (state.currentMode === 'business') {
+                        state.socialBusiness = data.social || [];
+                        state.socialPrivate = [];
+                    } else {
+                        state.socialPrivate = data.social || [];
+                        state.socialBusiness = [];
+                    }
+                } else {
+                    // New format
+                    state.socialPrivate = data.socialPrivate || [];
+                    state.socialBusiness = data.socialBusiness || [];
+                }
+                
+                // Handle logo
+                if (data.logoDataUrl) {
+                    state.logoDataUrl = data.logoDataUrl;
+                    const logoImg = Utils.getElement('logo-preview-img');
+                    const logoBtn = Utils.getElement('logo-remove-btn');
+                    if (logoImg) {
+                        logoImg.src = state.logoDataUrl;
+                        Utils.removeClass(logoImg, 'hidden');
+                    }
+                    if (logoBtn) {
+                        Utils.removeClass(logoBtn, 'hidden');
+                    }
+                }
+                
+                // Update counters
+                const notesCounter = Utils.getElement('notes-counter');
+                const titlePrev = Utils.getElement('qr-title-prev');
+                const subtitlePrev = Utils.getElement('qr-subtitle-prev');
+                
+                if (notesCounter) notesCounter.textContent = (data['c-notes'] || '').length;
+                if (titlePrev) titlePrev.textContent = data['qr-title'] || '';
+                if (subtitlePrev) subtitlePrev.textContent = data['qr-subtitle'] || '';
+            }
+        };
+        
+        // ============================================================================
+        // MODE HANDLER
+        // ============================================================================
+        
+        const ModeHandler = {
+            switch(state, mode) {
+                state.currentMode = mode;
+                
+                const privateFields = document.querySelectorAll('[data-mode="private"]');
+                const businessFields = document.querySelectorAll('[data-mode="business"]');
+                
+                if (mode === 'business') {
+                    this._setupBusinessMode(privateFields, businessFields);
+                } else {
+                    this._setupPrivateMode(privateFields, businessFields);
+                }
+                
+                SocialMediaHandler.render(state);
+                App.debouncedGenerate();
+            },
+            
+            _setupBusinessMode(privateFields, businessFields) {
+                privateFields.forEach(field => {
+                    Utils.addClass(field, 'field-disabled');
+                    field.querySelectorAll('input, select, textarea').forEach(input => {
+                        input.disabled = true;
+                    });
+                });
+                
+                businessFields.forEach(field => {
+                    Utils.removeClass(field, 'field-disabled');
+                    field.querySelectorAll('input, select, textarea').forEach(input => {
+                        input.disabled = false;
+                    });
+                });
+                
+                const socialType = Utils.getElement('social-type');
+                if (socialType) {
+                    socialType.innerHTML = '<option value="linkedin">💼 LinkedIn</option>';
+                }
+            },
+            
+            _setupPrivateMode(privateFields, businessFields) {
+                privateFields.forEach(field => {
+                    Utils.removeClass(field, 'field-disabled');
+                    field.querySelectorAll('input, select, textarea').forEach(input => {
+                        input.disabled = false;
+                    });
+                });
+                
+                businessFields.forEach(field => {
+                    Utils.addClass(field, 'field-disabled');
+                    field.querySelectorAll('input, select, textarea').forEach(input => {
+                        input.disabled = true;
+                    });
+                });
+                
+                const socialType = Utils.getElement('social-type');
+                if (socialType) {
+                    const socialOptions = Object.entries(CONFIG.SOCIAL_LABELS)
+                        .map(([value, label]) => `<option value="${value}">${label}</option>`)
+                        .join('');
+                    socialType.innerHTML = socialOptions;
+                }
+            }
+        };
+        
+        // ============================================================================
+        // EXPORT HANDLER
+        // ============================================================================
+        
+        const ExportHandler = {
+            exportPNG(state) {
+                const qrCanvas = Utils.getElement('qr-canvas');
+                if (!qrCanvas) {
+                    Utils.showError('noQRCode');
+                    return;
+                }
+                
+                const title = Utils.getValue('qr-title');
+                const subtitle = Utils.getValue('qr-subtitle');
+                
+                const exportCanvas = document.createElement('canvas');
+                const ctx = exportCanvas.getContext('2d');
+                
+                if (!ctx) {
+                    Utils.showError('canvasError');
+                    return;
+                }
+                
+                this._setupCanvas(exportCanvas, qrCanvas, title, subtitle);
+                this._drawContent(ctx, qrCanvas, title, subtitle, state);
+            },
+            
+            copyVCard(state) {
+                const vcard = VCardGenerator.generate(state);
+                
+                navigator.clipboard.writeText(vcard).then(() => {
+                    Utils.showError('vcardCopied');
+                }).catch(() => {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = vcard;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    Utils.showError('vcardCopied');
+                });
+            },
+            
+            _setupCanvas(exportCanvas, qrCanvas, title, subtitle) {
+                const margin = 20;
+                const titleHeight = title ? 35 : 0;
+                const subtitleHeight = subtitle ? 25 : 0;
+                const textGap = 5;
+                
+                exportCanvas.width = qrCanvas.width + (margin * 2);
+                exportCanvas.height = margin + titleHeight + (title ? textGap : 0) + 
+                                    qrCanvas.height + 
+                                    (subtitle ? textGap : 0) + subtitleHeight + margin;
+            },
+            
+            _drawContent(ctx, qrCanvas, title, subtitle, state) {
+                const margin = 20;
+                const textGap = 5;
+                let currentY = margin;
+                
+                // White background
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                
+                // Draw title
+                if (title) {
+                    ctx.fillStyle = '#000000';
+                    ctx.font = 'bold 24px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'top';
+                    ctx.fillText(title, ctx.canvas.width / 2, currentY);
+                    currentY += 35 + textGap;
+                }
+                
+                // Draw QR Code
+                try {
+                    ctx.drawImage(qrCanvas, margin, currentY, qrCanvas.width, qrCanvas.height);
+                } catch (error) {
+                    console.error('Fehler beim Zeichnen des QR-Codes:', error);
+                    Utils.showError('Fehler beim Exportieren des QR-Codes.');
+                    return;
+                }
+                
+                // Draw logo if present
+                if (state.logoDataUrl) {
+                    this._drawLogo(ctx, qrCanvas, currentY, state, () => {
+                        this._finishExport(ctx, qrCanvas, currentY, subtitle);
+                    });
+                } else {
+                    this._finishExport(ctx, qrCanvas, currentY, subtitle);
+                }
+            },
+            
+            _drawLogo(ctx, qrCanvas, currentY, state, callback) {
+                const logoImg = new Image();
+                let logoLoadTimeout;
+                
+                logoImg.onload = () => {
+                    clearTimeout(logoLoadTimeout);
+                    try {
+                        const logoSize = (Utils.getValue('logo-size') / 100) * qrCanvas.width;
+                        const logoX = 20 + (qrCanvas.width - logoSize) / 2;
+                        const logoY = currentY + (qrCanvas.height - logoSize) / 2;
+                        
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(logoX - 4, logoY - 4, logoSize + 8, logoSize + 8);
+                        ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+                    } catch (error) {
+                        console.error('Fehler beim Zeichnen des Logos:', error);
+                    }
+                    callback();
+                };
+                
+                logoImg.onerror = () => {
+                    clearTimeout(logoLoadTimeout);
+                    console.error('Logo konnte nicht geladen werden');
+                    callback();
+                };
+                
+                logoLoadTimeout = setTimeout(() => {
+                    console.warn('Logo-Laden Timeout');
+                    callback();
+                }, CONFIG.LOGO.LOAD_TIMEOUT);
+                
+                logoImg.src = state.logoDataUrl;
+            },
+            
+            _finishExport(ctx, qrCanvas, currentY, subtitle) {
+                // Draw subtitle
+                if (subtitle) {
+                    currentY += qrCanvas.height + 5;
+                    ctx.fillStyle = '#000000';
+                    ctx.font = '18px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'top';
+                    ctx.fillText(subtitle, ctx.canvas.width / 2, currentY);
+                }
+                
+                // Download - nutze QR-Titel als Dateiname, sonst "Kontakt"
+                try {
+                    const link = document.createElement('a');
+                    link.href = ctx.canvas.toDataURL('image/png');
+                    const qrTitle = Utils.getValue('qr-title');
+                    const fileName = qrTitle || 'Kontakt';
+                    link.download = fileName + '_QR.png';
+                    link.click();
+                } catch (error) {
+                    console.error('Fehler beim Download:', error);
+                    Utils.showError('Fehler beim Speichern der Datei.');
+                }
+            }
+        };
+        
+        // ============================================================================
+        // MAIN APPLICATION
+        // ============================================================================
+        
+        const App = {
+            state: null,
+            debouncedGenerate: null,
+            
+            init() {
+                this.state = new AppState();
+                this.debouncedGenerate = Utils.debounce(() => {
+                    QRCodeManager.generate(this.state);
+                }, CONFIG.DEBOUNCE.QR_GENERATION);
+                
+                // Initialize i18n
+                i18n.init();
+                i18n.updateUI();
+                
+                this.detectAndSetSystemTheme();
+                this.setupEventListeners();
+                this.initialRender();
+                
+                // Globale Funktionen für Event Handler verfügbar machen
+                window.App = this;
+            },
+            
+            detectAndSetSystemTheme() {
+                // Prüfe zuerst ob eine gespeicherte Präferenz existiert
+                let savedTheme = null;
+                try {
+                    savedTheme = localStorage.getItem('vcardThemePreference');
+                } catch (error) {
+                    console.warn('Could not load theme preference:', error);
+                }
+                
+                const themeSelect = Utils.getElement('theme-select');
+                
+                if (savedTheme) {
+                    // User hat eine Präferenz gespeichert - nutze diese
+                    if (savedTheme === 'default') {
+                        document.body.className = '';
+                    } else {
+                        document.body.className = `theme-${savedTheme}`;
+                    }
+                    if (themeSelect) {
+                        themeSelect.value = savedTheme;
+                    }
+                } else {
+                    // Keine gespeicherte Präferenz - nutze System-Präferenz
+                    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                        // System ist im Dark Mode
+                        document.body.className = 'theme-dark';
+                        if (themeSelect) {
+                            themeSelect.value = 'dark';
+                        }
+                    }
+                }
+                
+                // Listener für Änderungen der System-Präferenz
+                if (window.matchMedia) {
+                    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                        // Nur automatisch wechseln wenn keine gespeicherte Präferenz existiert
+                        let currentSavedTheme = null;
+                        try {
+                            currentSavedTheme = localStorage.getItem('vcardThemePreference');
+                        } catch (error) {
+                            // Ignore
+                        }
+                        
+                        if (!currentSavedTheme) {
+                            const themeSelect = Utils.getElement('theme-select');
+                            if (e.matches) {
+                                document.body.className = 'theme-dark';
+                                if (themeSelect) themeSelect.value = 'dark';
+                            } else {
+                                document.body.className = '';
+                                if (themeSelect) themeSelect.value = 'default';
+                            }
+                        }
+                    });
+                }
+            },
+            
+            setupEventListeners() {
+                // Mode switching
+                document.querySelectorAll('input[name="mode"]').forEach(radio => {
+                    radio.addEventListener('change', (e) => {
+                        ModeHandler.switch(this.state, e.target.value);
+                    });
+                });
+                
+                // Profile management
+                const saveProfileBtn = Utils.getElement('save-profile-btn');
+                if (saveProfileBtn) {
+                    saveProfileBtn.addEventListener('click', () => {
+                        ProfileManager.save(this.state);
+                    });
+                }
+                
+                const profileList = Utils.getElement('profile-list');
+                if (profileList) {
+                    profileList.addEventListener('click', (e) => {
+                        const target = e.target;
+                        if (target.classList.contains('profile-load')) {
+                            ProfileManager.load(this.state, target.dataset.name);
+                        } else if (target.classList.contains('profile-delete')) {
+                            ProfileManager.delete(this.state, target.dataset.name);
+                        }
+                    });
+                }
+                
+                // Social media
+                const addSocialBtn = Utils.getElement('add-social-btn');
+                if (addSocialBtn) {
+                    addSocialBtn.addEventListener('click', () => {
+                        SocialMediaHandler.add(this.state);
+                    });
+                }
+                
+                const socialList = Utils.getElement('social-list');
+                if (socialList) {
+                    socialList.addEventListener('click', (e) => {
+                        const target = e.target;
+                        if (target.classList.contains('remove-btn')) {
+                            SocialMediaHandler.remove(this.state, parseInt(target.dataset.index));
+                        }
+                    });
+                }
+                
+                // Export functions
+                const exportPngBtn = Utils.getElement('export-png-btn');
+                if (exportPngBtn) {
+                    exportPngBtn.addEventListener('click', () => {
+                        ExportHandler.exportPNG(this.state);
+                    });
+                }
+                
+                const copyVcardBtn = Utils.getElement('copy-vcard-btn');
+                if (copyVcardBtn) {
+                    copyVcardBtn.addEventListener('click', () => {
+                        ExportHandler.copyVCard(this.state);
+                    });
+                }
+                
+                // Logo handling
+                const logoFile = Utils.getElement('logo-file');
+                if (logoFile) {
+                    logoFile.addEventListener('change', (e) => {
+                        this.handleLogoUpload(e);
+                    });
+                }
+                
+                const logoRemoveBtn = Utils.getElement('logo-remove-btn');
+                if (logoRemoveBtn) {
+                    logoRemoveBtn.addEventListener('click', () => {
+                        this.removeLogo();
+                    });
+                }
+                
+                const logoSize = Utils.getElement('logo-size');
+                if (logoSize) {
+                    logoSize.addEventListener('input', (e) => {
+                        const labelLogoSize = Utils.getElement('label-logo-size');
+                        if (labelLogoSize) labelLogoSize.textContent = e.target.value;
+                        this.debouncedGenerate();
+                    });
+                }
+                
+                // QR settings
+                const setQrSize = Utils.getElement('set-qr-size');
+                if (setQrSize) {
+                    setQrSize.addEventListener('input', (e) => {
+                        const size = e.target.value;
+                        const labelQrSize = Utils.getElement('label-qr-size');
+                        if (labelQrSize) labelQrSize.textContent = size;
+                        this.state.qrSize = parseInt(size);
+                        if (this.state.qrInstance) {
+                            this.state.qrInstance.size = this.state.qrSize;
+                        }
+                        this.debouncedGenerate();
+                    });
+                }
+                
+                const setEc = Utils.getElement('set-ec');
+                if (setEc) {
+                    setEc.addEventListener('change', () => {
+                        this.debouncedGenerate();
+                    });
+                }
+                
+                // Language selection
+                const languageSelect = Utils.getElement('language-select');
+                if (languageSelect) {
+                    languageSelect.addEventListener('change', (e) => {
+                        i18n.setLanguage(e.target.value);
+                        // Re-render dynamic content
+                        SocialMediaHandler.render(this.state);
+                        ProfileManager.render(this.state);
+                    });
+                }
+                
+                // Theme
+                const themeSelect = Utils.getElement('theme-select');
+                if (themeSelect) {
+                    themeSelect.addEventListener('change', (e) => {
+                        const theme = e.target.value;
+                        
+                        // Speichere Theme-Präferenz
+                        try {
+                            localStorage.setItem('vcardThemePreference', theme);
+                        } catch (error) {
+                            console.warn('Could not save theme preference:', error);
+                        }
+                        
+                        // Setze Theme
+                        if (theme === 'default') {
+                            document.body.className = '';
+                        } else {
+                            document.body.className = `theme-${theme}`;
+                        }
+                    });
+                }
+                
+                // Test data
+                const fillTestBtn = Utils.getElement('fill-test-btn');
+                if (fillTestBtn) {
+                    fillTestBtn.addEventListener('click', () => {
+                        this.fillTestData();
+                    });
+                }
+                
+                const clearAllBtn = Utils.getElement('clear-all-btn');
+                if (clearAllBtn) {
+                    clearAllBtn.addEventListener('click', () => {
+                        this.clearAll();
+                    });
+                }
+                
+                const resetAllBtn = Utils.getElement('reset-all-btn');
+                if (resetAllBtn) {
+                    resetAllBtn.addEventListener('click', () => {
+                        if (confirm(i18n.t('resetConfirm'))) {
+                            this.clearAll();
+                        }
+                    });
+                }
+                
+                // Form inputs for auto-update
+                const inputs = document.querySelectorAll('input, select, textarea');
+                inputs.forEach(input => {
+                    if (!this.shouldSkipAutoUpdate(input.id)) {
+                        input.addEventListener('input', () => this.debouncedGenerate());
+                        input.addEventListener('change', () => this.debouncedGenerate());
+                    }
+                });
+                
+                // Special handlers
+                const qrTitle = Utils.getElement('qr-title');
+                if (qrTitle) {
+                    qrTitle.addEventListener('input', (e) => {
+                        const titlePrev = Utils.getElement('qr-title-prev');
+                        if (titlePrev) titlePrev.textContent = e.target.value;
+                    });
+                }
+                
+                const qrSubtitle = Utils.getElement('qr-subtitle');
+                if (qrSubtitle) {
+                    qrSubtitle.addEventListener('input', (e) => {
+                        const subtitlePrev = Utils.getElement('qr-subtitle-prev');
+                        if (subtitlePrev) subtitlePrev.textContent = e.target.value;
+                    });
+                }
+                
+                const cNotes = Utils.getElement('c-notes');
+                if (cNotes) {
+                    cNotes.addEventListener('input', (e) => {
+                        const notesCounter = Utils.getElement('notes-counter');
+                        if (notesCounter) notesCounter.textContent = e.target.value.length;
+                    });
+                }
+                
+                // Cleanup on unload
+                window.addEventListener('beforeunload', () => {
+                    if (this.state.qrInstance) {
+                        this.state.qrInstance = null;
+                    }
+                });
+            },
+            
+            shouldSkipAutoUpdate(id) {
+                const skipList = ['logo', 'social', 'profile'];
+                return skipList.some(skip => id.includes(skip));
+            },
+            
+            handleLogoUpload(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                if (file.size > CONFIG.LOGO.MAX_SIZE) {
+                    Utils.showError('logoTooLarge');
+                    event.target.value = '';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.state.logoDataUrl = e.target.result;
+                    const logoImg = Utils.getElement('logo-preview-img');
+                    const logoBtn = Utils.getElement('logo-remove-btn');
+                    if (logoImg) {
+                        logoImg.src = this.state.logoDataUrl;
+                        Utils.removeClass(logoImg, 'hidden');
+                    }
+                    if (logoBtn) {
+                        Utils.removeClass(logoBtn, 'hidden');
+                    }
+                    this.debouncedGenerate();
+                };
+                reader.onerror = () => {
+                    Utils.showError('logoLoadError');
+                    event.target.value = '';
+                };
+                reader.readAsDataURL(file);
+            },
+            
+            removeLogo() {
+                this.state.logoDataUrl = '';
+                const logoImg = Utils.getElement('logo-preview-img');
+                const logoBtn = Utils.getElement('logo-remove-btn');
+                const logoFile = Utils.getElement('logo-file');
+                
+                if (logoImg) {
+                    logoImg.src = '';
+                    Utils.addClass(logoImg, 'hidden');
+                }
+                if (logoBtn) {
+                    Utils.addClass(logoBtn, 'hidden');
+                }
+                if (logoFile) {
+                    logoFile.value = '';
+                }
+                
+                const existingLogo = Utils.getElement('logo-preview');
+                if (existingLogo) existingLogo.remove();
+                
+                this.debouncedGenerate();
+            },
+            
+            fillTestData() {
+                const testData = {
+                    'c-first': 'Björn',
+                    'c-last': 'Müller-Lüdenscheid',
+                    'c-nickname': 'Bö',
+                    'c-mail': 'björn.müller@äöü.de',
+                    'c-mail-work': 'b.müller@ärzte-öhringen.de',
+                    'c-org': 'Ärztegemeinschaft Öhringen',
+                    'c-title-1': 'Geschäftsführer',
+                    'c-title-2': 'Facharzt für Übungen',
+                    'c-tel-landline': '30 98765432',
+                    'c-tel-mobile': '171 9876543',
+                    'c-street': 'Königsstraße 42',
+                    'c-street-ext': 'Hinterhaus, 3. Stock links',
+                    'c-postal': '80331',
+                    'c-city': 'München',
+                    'c-country': 'Deutschland',
+                    'c-url': 'https://äöü.de',
+                    'c-notes': 'Größte Überraschung für schöne Übungen im Büro'
+                };
+                
+                Object.entries(testData).forEach(([id, value]) => {
+                    Utils.setValue(id, value);
+                });
+                
+                if (this.state.currentMode === 'business') {
+                    this.state.socialBusiness = [
+                        { type: 'linkedin', username: 'bjoern-mueller', url: 'https://www.linkedin.com/in/bjoern-mueller', input: 'bjoern-mueller' }
+                    ];
+                } else {
+                    this.state.socialPrivate = [
+                        { type: 'bluesky', username: 'bjoern.mueller', url: 'https://bsky.app/profile/bjoern.mueller', input: '@bjoern.mueller' },
+                        { type: 'mastodon', username: 'bjoern', url: 'https://mastodon.social/@bjoern', input: '@bjoern@mastodon.social' }
+                    ];
+                }
+                
+                SocialMediaHandler.render(this.state);
+                this.debouncedGenerate();
+            },
+            
+            clearAll() {
+                // Clear all text inputs
+                document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], input[type="url"], input[type="date"], textarea').forEach(el => {
+                    el.value = '';
+                });
+                
+                // Reset selects
+                Utils.setValue('c-tel-landline-cc', CONFIG.DEFAULTS.COUNTRY_CODE);
+                Utils.setValue('c-tel-mobile-cc', CONFIG.DEFAULTS.COUNTRY_CODE);
+                Utils.setValue('vcard-platform', CONFIG.DEFAULTS.PLATFORM);
+                Utils.setValue('set-ec', CONFIG.QR.DEFAULT_ERROR_CORRECTION);
+                
+                // Clear social media
+                this.state.socialPrivate = [];
+                this.state.socialBusiness = [];
+                
+                // Clear logo
+                this.state.logoDataUrl = '';
+                const logoImg = Utils.getElement('logo-preview-img');
+                const logoBtn = Utils.getElement('logo-remove-btn');
+                const logoFile = Utils.getElement('logo-file');
+                
+                if (logoImg) Utils.addClass(logoImg, 'hidden');
+                if (logoBtn) Utils.addClass(logoBtn, 'hidden');
+                if (logoFile) logoFile.value = '';
+                
+                // Update UI
+                const notesCounter = Utils.getElement('notes-counter');
+                if (notesCounter) notesCounter.textContent = '0';
+                
+                SocialMediaHandler.render(this.state);
+                this.debouncedGenerate();
+            },
+            
+            initialRender() {
+                SocialMediaHandler.render(this.state);
+                ProfileManager.render(this.state);
+                QRCodeManager.generate(this.state);
+            }
+        };
+        
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => App.init());
+    </script>
+</body>
+</html>
